@@ -30,7 +30,7 @@ public class ApiController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Car> getCarById(@PathVariable Integer id) {
-        Optional<Car> first = carList.stream().filter(car -> car.getId() == id).findFirst();
+        Optional<Car> first = carList.stream().filter(car -> car.getId().equals(id)).findFirst();
         return first.map(car -> new ResponseEntity<>(car, HttpStatus.OK)).orElseGet(() ->
                 new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -55,7 +55,7 @@ public class ApiController {
 
     @PutMapping
     public ResponseEntity<Car> modCar(@RequestBody Car newCar) {
-        Optional<Car> first = carList.stream().filter(car -> car.getId() == newCar.getId()).findFirst();
+        Optional<Car> first = carList.stream().filter(car -> car.getId().equals(newCar.getId())).findFirst();
         if (first.isPresent()) {
             carList.remove(first.get());
             carList.add(newCar);
@@ -65,7 +65,7 @@ public class ApiController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<?> modOneCarField(@RequestParam("color") String newColor, @PathVariable("id") Integer id) {
-        Optional<Car> first = carList.stream().filter(car -> car.getId() == id).findFirst();
+        Optional<Car> first = carList.stream().filter(car -> car.getId().equals(id)).findFirst();
         if (first.isPresent()) {
             carList.get((int) id - 1).setColor(newColor);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -74,7 +74,7 @@ public class ApiController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Car> deleteCar(@PathVariable Integer id) {
-        Optional<Car> first = carList.stream().filter(car -> car.getId() == id).findFirst();
+        Optional<Car> first = carList.stream().filter(car -> car.getId().equals(id)).findFirst();
         if (first.isPresent()) {
             carList.remove(first.get());
             return new ResponseEntity<>(first.get(), HttpStatus.OK);
