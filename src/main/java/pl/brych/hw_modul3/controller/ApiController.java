@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/cars")
 public class ApiController {
 
     private List<Car> carList;
@@ -28,7 +29,7 @@ public class ApiController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Car> getCarById(@PathVariable long id) {
+    public ResponseEntity<Car> getCarById(@PathVariable Integer id) {
         Optional<Car> first = carList.stream().filter(car -> car.getId() == id).findFirst();
         return first.map(car -> new ResponseEntity<>(car, HttpStatus.OK)).orElseGet(() ->
                 new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -63,7 +64,7 @@ public class ApiController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> modOneCarField(@RequestParam("color") String newColor, @PathVariable("id") long id) {
+    public ResponseEntity<?> modOneCarField(@RequestParam("color") String newColor, @PathVariable("id") Integer id) {
         Optional<Car> first = carList.stream().filter(car -> car.getId() == id).findFirst();
         if (first.isPresent()) {
             carList.get((int) id - 1).setColor(newColor);
@@ -72,7 +73,7 @@ public class ApiController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Car> deleteCar(@PathVariable long id) {
+    public ResponseEntity<Car> deleteCar(@PathVariable Integer id) {
         Optional<Car> first = carList.stream().filter(car -> car.getId() == id).findFirst();
         if (first.isPresent()) {
             carList.remove(first.get());
