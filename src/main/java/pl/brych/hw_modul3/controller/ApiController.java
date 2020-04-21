@@ -1,5 +1,7 @@
 package pl.brych.hw_modul3.controller;
 
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
 @RequestMapping("/cars")
@@ -29,9 +33,11 @@ public class ApiController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Car> getCarById(@PathVariable Integer id) {
+    public ResponseEntity<EntityModel<Car>> getCarById(@PathVariable Integer id) {
+        Link link = linkTo(ApiController.class).slash(id).withSelfRel();
         Optional<Car> first = carList.stream().filter(car -> car.getId().equals(id)).findFirst();
-        return first.map(car -> new ResponseEntity<>(car, HttpStatus.OK)).orElseGet(() ->
+        EntityModel<Car> carResource = new EntityModel<>(first.get(), link);
+        return first.map(car -> new ResponseEntity<>(carResource, HttpStatus.OK)).orElseGet(() ->
                 new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 

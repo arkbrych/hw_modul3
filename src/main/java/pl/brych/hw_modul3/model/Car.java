@@ -1,9 +1,10 @@
 package pl.brych.hw_modul3.model;
 
 import lombok.Data;
+import org.springframework.hateoas.RepresentationModel;
 
 @Data
-public class Car {
+public class Car extends RepresentationModel {
 
     private Integer id;
     private String mark;
