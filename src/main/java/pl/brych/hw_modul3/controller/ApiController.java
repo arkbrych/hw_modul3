@@ -2,15 +2,13 @@ package pl.brych.hw_modul3.controller;
 
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.brych.hw_modul3.model.Car;
+import pl.brych.hw_modul3.service.CarServiceImp;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -18,34 +16,32 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @RequestMapping("/cars")
 public class ApiController {
 
-    private List<Car> carList;
+    private CarServiceImp carServiceImp;
 
-    public ApiController() {
-        this.carList = new ArrayList<>();
-        carList.add(new Car(1, "Fiat", "126p", "czerwony"));
-        carList.add(new Car(2, "Polonez", "FSO", "niebieski"));
-        carList.add(new Car(3, "Syrena", "105", "biały"));
+    public ApiController(CarServiceImp carServiceImp) {
+        this.carServiceImp = carServiceImp;
     }
 
     @GetMapping
     public ResponseEntity<List<Car>> getCars() {
-        return new ResponseEntity<>(carList, HttpStatus.OK);
+        return ResponseEntity.ok(carServiceImp.getAllCarsService());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Car>> getCarById(@PathVariable Integer id) {
         Link link = linkTo(ApiController.class).slash(id).withSelfRel();
-        Optional<Car> first = carList.stream().filter(car -> car.getId().equals(id)).findFirst();
-        EntityModel<Car> carResource = new EntityModel<>(first.get(), link);
-        return first.map(car -> new ResponseEntity<>(carResource, HttpStatus.OK)).orElseGet(() ->
-                new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        Optional<Car> first = carServiceImp.getCarByIdService(id);
+        if (first.isPresent()){
+            EntityModel<Car> carResource = new EntityModel<>(first.get(), link);
+            return ResponseEntity.ok(carResource);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/color/{color}")
     public ResponseEntity<List<Car>> getCarsByColor(@PathVariable String color) {
-        List<Car> cars = carList.stream()
-                .filter(car -> car.getColor().equals(color))
-                .collect(Collectors.toList());
+        List<Car> cars = carServiceImp.getCarsByColorService(color);
         if (cars.isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {
@@ -55,35 +51,35 @@ public class ApiController {
 
     @PostMapping
     public ResponseEntity<Car> addCar(@RequestBody Car car) {
-        carList.add(car);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        carServiceImp.getAllCarsService().add(car);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping
     public ResponseEntity<Car> modCar(@RequestBody Car newCar) {
-        Optional<Car> first = carList.stream().filter(car -> car.getId().equals(newCar.getId())).findFirst();
+        Optional<Car> first = carServiceImp.getCarByIdService(newCar.getId());
         if (first.isPresent()) {
-            carList.remove(first.get());
-            carList.add(newCar);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            carServiceImp.getAllCarsService().remove(first.get());
+            carServiceImp.getAllCarsService().add(newCar);
+            return ResponseEntity.ok().build();
+        } else return ResponseEntity.notFound().build();
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<?> modOneCarField(@RequestParam("color") String newColor, @PathVariable("id") Integer id) {
-        Optional<Car> first = carList.stream().filter(car -> car.getId().equals(id)).findFirst();
+        Optional<Car> first = carServiceImp.getCarByIdService(id);
         if (first.isPresent()) {
-            carList.get((int) id - 1).setColor(newColor);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            carServiceImp.getAllCarsService().get(id - 1).setColor(newColor);
+            return ResponseEntity.ok().build();
+        } else return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Car> deleteCar(@PathVariable Integer id) {
-        Optional<Car> first = carList.stream().filter(car -> car.getId().equals(id)).findFirst();
+        Optional<Car> first = carServiceImp.getCarByIdService(id);
         if (first.isPresent()) {
-            carList.remove(first.get());
-            return new ResponseEntity<>(first.get(), HttpStatus.OK);
-        } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            carServiceImp.getAllCarsService().remove(first.get());
+            return ResponseEntity.ok(first.get());
+        } else return ResponseEntity.notFound().build();
     }
 }
