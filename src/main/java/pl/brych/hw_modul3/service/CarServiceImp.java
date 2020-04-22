@@ -16,7 +16,7 @@ public class CarServiceImp implements CarService {
     public CarServiceImp(){
         this.carList = new ArrayList<>();
         carList.add(new Car(1, "Fiat", "126p", "czerwony"));
-        carList.add(new Car(2, "Polonez", "FSO", "niebieski"));
+        carList.add(new Car(2, "Polonez", "FSO", "czerwony"));
         carList.add(new Car(3, "Syrena", "105", "biały"));
     }
 

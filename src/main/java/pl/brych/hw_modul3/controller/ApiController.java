@@ -1,5 +1,6 @@
 package pl.brych.hw_modul3.controller;
 
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +24,20 @@ public class ApiController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Car>> getCars() {
-        return ResponseEntity.ok(carServiceImp.getAllCarsService());
+    public ResponseEntity<CollectionModel<Car>> getCars() {
+        List<Car> allCars = carServiceImp.getAllCarsService();
+        allCars.forEach(car -> car.add(linkTo(ApiController.class).slash(car.getId()).withSelfRel()));
+        Link link = linkTo(ApiController.class).withSelfRel();
+        CollectionModel<Car> carCollectionModel = new CollectionModel<>(allCars, link);
+        return ResponseEntity.ok(carCollectionModel);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Car>> getCarById(@PathVariable Integer id) {
         Link link = linkTo(ApiController.class).slash(id).withSelfRel();
-        Optional<Car> first = carServiceImp.getCarByIdService(id);
-        if (first.isPresent()){
-            EntityModel<Car> carResource = new EntityModel<>(first.get(), link);
+        Optional<Car> carById = carServiceImp.getCarByIdService(id);
+        if (carById.isPresent()){
+            EntityModel<Car> carResource = new EntityModel<>(carById.get(), link);
             return ResponseEntity.ok(carResource);
         } else {
             return ResponseEntity.notFound().build();
@@ -40,12 +45,16 @@ public class ApiController {
     }
 
     @GetMapping("/color/{color}")
-    public ResponseEntity<List<Car>> getCarsByColor(@PathVariable String color) {
+    public ResponseEntity<CollectionModel<Car>> getCarsByColor(@PathVariable String color) {
+
         List<Car> cars = carServiceImp.getCarsByColorService(color);
+        cars.forEach(car -> car.add(linkTo(ApiController.class).slash(car.getId()).withSelfRel()));
+        Link link = linkTo(ApiController.class).slash(cars).withSelfRel();
+        CollectionModel<Car> carCollectionModel = new CollectionModel<>(cars, link);
         if (cars.isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {
-            return ResponseEntity.ok(cars);
+            return ResponseEntity.ok(carCollectionModel);
         }
     }
 
