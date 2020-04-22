@@ -3,7 +3,10 @@ package pl.brych.hw_modul3.model;
 import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 @Data
+@XmlRootElement(name = "car")
 public class Car extends RepresentationModel {
 
     private Integer id;
