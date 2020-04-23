@@ -1,15 +1,14 @@
 package pl.brych.hw_modul3.service;
 
-import pl.brych.hw_modul3.model.Car;
+import pl.brych.hw_modul3.car.CarResource;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CarService {
 
-    Optional<Car> getCarByIdService(Integer id);
+  //  Optional<Car> getCarByIdService(Integer id);
 
-    List<Car> getAllCarsService();
+    List<CarResource> getAllCarsService();
 
-    List<Car> getCarsByColorService(String color);
+  //  List<Car> getCarsByColorService(String color);
 }
